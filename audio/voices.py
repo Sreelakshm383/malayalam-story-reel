@@ -1,7 +1,7 @@
 """Generate all Malayalam dialogue with Meta MMS-TTS (VITS) and shape each
 character's voice (pitch / formant / pace) so the five voices are distinct.
 
-usage: python3 audio/voices.py <mms-model-dir>
+usage: python3 audio/voices.py [mms-model-dir]   (downloads facebook/mms-tts-mal if omitted)
 writes build/voice/<id>.wav (48 kHz mono) and build/voice/meta.json
 (duration + 30 fps mouth-openness envelope for lip-sync).
 """
@@ -102,4 +102,9 @@ def main(model_dir):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    if len(sys.argv) > 1:
+        model_dir = sys.argv[1]
+    else:   # fetch Meta MMS-TTS Malayalam (needs network access to huggingface.co)
+        from huggingface_hub import snapshot_download
+        model_dir = snapshot_download("facebook/mms-tts-mal")
+    main(model_dir)

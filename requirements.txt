@@ -1,0 +1,11 @@
+# Python 3.11+
+numpy>=1.26
+scipy>=1.11
+soundfile>=0.12
+pillow>=10.0        # needs libraqm for Malayalam text shaping (PIL.features.check("raqm"))
+pycairo>=1.25
+torch>=2.1          # Malayalam TTS (CPU is fine)
+transformers>=4.40
+huggingface_hub>=0.20
+librosa>=0.10       # tests only (pitch checks)
+pytest>=7

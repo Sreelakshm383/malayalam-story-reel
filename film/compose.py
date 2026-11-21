@@ -154,6 +154,7 @@ def draw_block(img, words, nlit, fnt, y, maxw=880, lh=1.35, dim=110, color=(255,
     return yy
 
 
+SUB_TOP, SUB_BOTTOM = 1290, 1580   # Reels-safe subtitle zone (bottom ~340 px is covered by caption/UI)
 _sub_cache = {}
 def subtitle_layer(cue, t_local):
     """RGBA overlay for a cue at time since cue start"""
@@ -165,8 +166,12 @@ def subtitle_layer(cue, t_local):
     key = (cue["id"], nlit)
     if key in _sub_cache: return _sub_cache[key]
     img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    y = draw_block(img, [w for w, _ in ws], nlit, font(ML_FONT, 58), 1290, maxw=860, lh=1.42)
-    draw_block(img, en, nen, font(EN_FONT, 34), y + 8, maxw=860, lh=1.4, dim=95, color=(246, 238, 224))
+    fml, fen = font(ML_FONT, 56), font(EN_FONT, 33)
+    nml = len(layout([w for w, _ in ws], fml, 900)[0]); nen_l = len(layout(en, fen, 880)[0])
+    height = nml * 56 * 1.42 + 8 + nen_l * 33 * 1.4
+    top = min(SUB_TOP, SUB_BOTTOM - height)          # long lines grow upward, never into the Reels UI
+    y = draw_block(img, [w for w, _ in ws], nlit, fml, top, maxw=900, lh=1.42)
+    draw_block(img, en, nen, fen, y + 8, maxw=880, lh=1.4, dim=95, color=(246, 238, 224))
     arr = np.asarray(img).astype(np.float32) / 255.0
     _sub_cache[key] = arr
     return arr
@@ -354,16 +359,64 @@ def render_frame(F):
     return (np.clip(img, 0, 1) * 255 + 0.5).astype(np.uint8).tobytes()
 
 
+def encode_segment(f0, f1, path):
+    """encode frames [f0, f1) to a video-only segment (single process, resumable)"""
+    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
+           "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-profile:v", "high", "-level", "4.1", "-pix_fmt", "yuv420p",
+           "-g", "60", "-bf", "2", "-an", path + ".tmp.mp4"]
+    p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+    for F in range(f0, f1):
+        p.stdin.write(render_frame(F))
+    p.stdin.close(); p.wait()
+    os.replace(path + ".tmp.mp4", path)
+
+
+def run_segments(out, nseg=8, workers=4):
+    """render the film as nseg independent segments in parallel processes, then concat + mux audio"""
+    segdir = os.path.join(B, "segments"); os.makedirs(segdir, exist_ok=True)
+    bounds = [round(TOTAL * k / nseg) for k in range(nseg + 1)]
+    jobs = []
+    for k in range(nseg):
+        path = os.path.join(segdir, f"seg{k:02d}.mp4")
+        if not os.path.exists(path):
+            jobs.append([sys.executable, os.path.abspath(__file__), "--segment", str(bounds[k]), str(bounds[k + 1]), path])
+    running = []
+    while jobs or running:
+        while jobs and len(running) < workers:
+            running.append(subprocess.Popen(jobs.pop(0)))
+        for r in list(running):
+            if r.poll() is not None:
+                if r.returncode != 0:
+                    raise SystemExit(f"segment failed: {r.args}")
+                running.remove(r); print("segment done", r.args[-1], flush=True)
+        import time; time.sleep(1)
+    lst = os.path.join(segdir, "list.txt")
+    with open(lst, "w") as fh:
+        for k in range(nseg):
+            fh.write(f"file 'seg{k:02d}.mp4'\n")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", lst, "-i", os.path.join(B, "mix_norm.wav"),
+                    "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
+                    "-movflags", "+faststart", "-shortest", out], check=True)
+    print("wrote", out)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("out", nargs="?", default=os.path.join(ROOT, "output", "A_Home_Called_Grandma_and_Grandpa.mp4"))
     ap.add_argument("--from", dest="fr", type=float, default=0); ap.add_argument("--to", type=float, default=None)
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--still", type=float, default=None)
+    ap.add_argument("--segment", nargs=3, default=None)
+    ap.add_argument("--pipe", action="store_true", help="old single-pipe multiprocessing path")
     a = ap.parse_args()
+    if a.segment:
+        encode_segment(int(a.segment[0]), int(a.segment[1]), a.segment[2]); return
     if a.still is not None:
         F = int(a.still * FPS)
         Image.frombytes("RGB", (W, H), render_frame(F)).save(a.out); return
+    if not a.pipe and a.to is None and a.fr == 0:
+        run_segments(a.out, workers=a.workers); return
     os.makedirs(os.path.dirname(a.out), exist_ok=True)
     f0 = int(a.fr * FPS); f1 = TOTAL if a.to is None else int(a.to * FPS)
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
