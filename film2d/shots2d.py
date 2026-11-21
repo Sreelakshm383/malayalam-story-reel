@@ -474,7 +474,7 @@ def photo_surface():
 
 
 def sh_s5_face(cr, t, shot):
-    z, cx, cy = cam_lerp(t, 4.2, (1.75, 540, 1330), (1.85, 540, 1340))
+    z, cx, cy = cam_lerp(t, 4.2, (1.75, 540, 1480), (1.85, 540, 1490))
     camera(cr, z, cx, cy)
     paint_cached(cr, cached("bed_bg_d", lambda c_: S.bedroom(c_, False, 0), blur=2))
     col(cr, (0.3, 0.25, 0.2, 0.15)); cr.rectangle(-540, -900, 2160, 3800); cr.fill()
@@ -513,7 +513,7 @@ def sh_s6_veranda(cr, t, shot):
 
 
 def sh_s6_toys(cr, t, shot):
-    z, cx, cy = cam_lerp(t, 5.8, (1.6, 540, 1450), (1.75, 600, 1460))
+    z, cx, cy = cam_lerp(t, 5.8, (1.6, 520, 1700), (1.75, 580, 1690))
     camera(cr, z, cx, cy)
     bed_set(cr, t, night=False)
     col(cr, (0.3, 0.25, 0.2, 0.18)); cr.rectangle(-540, -900, 2160, 3800); cr.fill()
