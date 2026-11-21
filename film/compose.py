@@ -8,6 +8,7 @@ usage: python3 film/compose.py [out.mp4] [--from SEC] [--to SEC] [--workers N]
 import json, os, sys, math, re, subprocess, argparse
 from multiprocessing import Pool
 import numpy as np, soundfile as sf
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "film2d"))
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -40,9 +41,9 @@ EN = {
 }
 
 # grading per scene: (warmth, saturation, contrast, lift, vignette, bloom)
-GRADE = {0: (1.0, 1.08, 1.06, 0.02, 0.38, 0.22), 1: (1.0, 1.10, 1.06, 0.015, 0.36, 0.22), 2: (1.05, 1.08, 1.08, 0.02, 0.42, 0.3),
-         3: (1.0, 1.10, 1.05, 0.015, 0.34, 0.2), 4: (0.9, 1.04, 1.1, 0.01, 0.5, 0.45), 5: (1.08, 0.86, 1.04, 0.04, 0.45, 0.3),
-         6: (1.1, 0.82, 1.04, 0.045, 0.45, 0.3)}
+GRADE = {0: (1.0, 1.02, 1.02, 0.015, 0.32, 0.12), 1: (1.0, 1.03, 1.02, 0.01, 0.3, 0.12), 2: (1.03, 1.02, 1.03, 0.015, 0.36, 0.18),
+         3: (1.0, 1.03, 1.02, 0.01, 0.3, 0.12), 4: (0.95, 1.0, 1.04, 0.0, 0.45, 0.14), 5: (1.05, 0.9, 1.0, 0.03, 0.4, 0.18),
+         6: (1.06, 0.88, 1.0, 0.035, 0.4, 0.2)}
 ATMOS = {"title": "pollen", "s1_run": "pollen", "s1_gma": "pollen", "s1_gpa": "pollen", "s1_hug": "pollen",
          "s2_wide": "dust", "s2_child": "dust", "s2_gma": "dust", "s3_walk": "pollen", "s3_two": "pollen", "s3_shop": "pollen",
          "s4_wide": "sparks", "s4_story": "sparks", "s4_eager": "sparks", "s4_sleep": "sparks", "s5_timelapse": "rain",
@@ -164,7 +165,7 @@ def subtitle_layer(cue, t_local):
     key = (cue["id"], nlit)
     if key in _sub_cache: return _sub_cache[key]
     img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    y = draw_block(img, [w for w, _ in ws], nlit, font(ML_FONT, 58), 1215, maxw=860, lh=1.42)
+    y = draw_block(img, [w for w, _ in ws], nlit, font(ML_FONT, 58), 1290, maxw=860, lh=1.42)
     draw_block(img, en, nen, font(EN_FONT, 34), y + 8, maxw=860, lh=1.4, dim=95, color=(246, 238, 224))
     arr = np.asarray(img).astype(np.float32) / 255.0
     _sub_cache[key] = arr
@@ -296,18 +297,12 @@ def shot_at(F):
 
 
 def load(name, f):
-    d = os.path.join(B, "frames", name)
-    f2 = f - f % 2
-    for g in (f2, f2 - 2, f2 + 2, f2 - 4):
-        p = os.path.join(d, f"{g:04d}.png")
-        if os.path.exists(p):
-            im = Image.open(p).convert("RGB")
-            if im.size != (W, H):
-                im = im.resize((W, H), Image.LANCZOS).filter(ImageFilter.UnsharpMask(radius=2, percent=55, threshold=2))
-            return np.asarray(im).astype(np.float32) / 255
-    return np.zeros((H, W, 3), np.float32)
+    import shots2d, draw
+    return draw.to_array(shots2d.frame(name, f)).copy()
 
 
+_y = np.arange(H, dtype=np.float32)
+BAND = (0.5 * np.clip(1 - np.abs(_y - 1440) / 260, 0, 1) ** 0.8).reshape(H, 1)
 DISSOLVE = {"s2_wide": 15, "s3_walk": 15, "s4_wide": 18, "s5_timelapse": 36, "s5_return": 15, "s6_veranda": 18, "s5_face": 12}
 
 
@@ -342,7 +337,14 @@ def render_frame(F):
     if T > endT - 4.6:
         a = min(1, (T - (endT - 4.6)) / 1.0)
         L = title_layer("end"); img = img * (1 - L[..., 3:] * a) + L[..., :3] * L[..., 3:] * a
-    # subtitles (fade in/out quickly)
+    # subtitles (fade in/out quickly) over a soft dark band for readability
+    band = 0.0
+    for c in s["cues"]:
+        tl = t - c["start"]
+        if -0.3 <= tl <= c["dur"] + 0.5:
+            band = max(band, min(1, (tl + 0.3) / 0.3) * min(1, (c["dur"] + 0.5 - tl) / 0.3))
+    if band > 0:
+        img = img * (1 - band * BAND[..., None])
     for c in s["cues"]:
         tl = t - c["start"]
         if -0.15 <= tl <= c["dur"] + 0.35:
