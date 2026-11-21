@@ -1,0 +1,5 @@
+.pyenv/
+stills/
+out/
+voice/out/.cache/
+*.part.mp4

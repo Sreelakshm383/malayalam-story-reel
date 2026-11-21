@@ -1,0 +1,13 @@
+[
+ {"id":"n1","who":"narrator","text":"ഒരു വേനൽ രാവിലെ, അമ്മൂമ്മ ഒരു തെങ്ങിൻതൈ നടുകയായിരുന്നു.","en":"One summer morning, Grandma was planting a coconut sapling.","voice":"ml-IN-MidhunNeural","rate":"-6%","pitch":"-4Hz"},
+ {"id":"a1","who":"appu","text":"അമ്മൂമ്മേ, ഇതിപ്പോ എന്തിനാ നടുന്നേ?","en":"Grandma, why are you planting this now?","voice":"ml-IN-SobhanaNeural","rate":"+8%","pitch":"+24Hz"},
+ {"id":"a2","who":"appu","text":"ഇത് കായ്ക്കാൻ ഒരു പത്തു കൊല്ലം എടുക്കൂലേ?","en":"Won't it take like 10 years to bear fruit?","say":"ഇത് കായ്ക്കാൻ ഒരു പത്തു കൊല്ലം എടുക്കൂലേ?","voice":"ml-IN-SobhanaNeural","rate":"+8%","pitch":"+24Hz"},
+ {"id":"g1","who":"ammumma","text":"ആ, എടുക്കുമായിരിക്കും മോനേ.","en":"Mm, it might, my boy.","voice":"ml-IN-SobhanaNeural","rate":"-14%","pitch":"-20Hz"},
+ {"id":"a3","who":"appu","text":"അപ്പോ അമ്മൂമ്മയ്ക്ക് ഇതിലെ തേങ്ങ കിട്ടുവോ?","en":"Then will you even get its coconuts?","voice":"ml-IN-SobhanaNeural","rate":"+8%","pitch":"+24Hz"},
+ {"id":"g2","who":"ammumma","text":"ഇപ്പൊ നീ കുടിച്ച ഈ ഇളനീരില്ലേ... അത് എന്റെ അമ്മൂമ്മ നട്ട തെങ്ങിലെയാ.","en":"This tender coconut you just drank... it came from a tree my grandma planted.","voice":"ml-IN-SobhanaNeural","rate":"-14%","pitch":"-20Hz"},
+ {"id":"g3","who":"ammumma","text":"നമ്മള് നടുന്നത് നമുക്ക് വേണ്ടി മാത്രമല്ല, മോനേ.","en":"What we plant isn't only for us, my boy.","voice":"ml-IN-SobhanaNeural","rate":"-14%","pitch":"-20Hz"},
+ {"id":"n2","who":"narrator","text":"വർഷങ്ങൾ കടന്നുപോയി.","en":"Years went by.","voice":"ml-IN-MidhunNeural","rate":"-10%","pitch":"-4Hz"},
+ {"id":"m1","who":"minnu","text":"അപ്പൂപ്പാ, ഇതിപ്പോ എന്തിനാ നടുന്നേ?","en":"Grandpa, why are you planting this now?","voice":"ml-IN-SobhanaNeural","rate":"+8%","pitch":"+32Hz"},
+ {"id":"p1","who":"oldappu","text":"നിനക്ക് വേണ്ടിയാ, മോളേ.","en":"For you, my girl.","voice":"ml-IN-MidhunNeural","rate":"-12%","pitch":"-14Hz"},
+ {"id":"n3","who":"narrator","text":"ഇന്ന് നമ്മൾ നടുന്നത്, നാളെ ആരുടെയോ തണലാണ്.","en":"What we plant today is someone's shade tomorrow.","voice":"ml-IN-MidhunNeural","rate":"-10%","pitch":"-4Hz"}
+]
