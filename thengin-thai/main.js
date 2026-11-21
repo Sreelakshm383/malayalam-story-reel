@@ -76,12 +76,12 @@ function grandmaPose(t) {
   const patting = (t < 6.3) || (t > 9.1 && t < 11.1);
   const patY = GY - 22 - Math.abs(Math.sin(t * 7.5)) * 16;
   const knee = W2(P, 74, 26);
-  const appuHead = [appuBoyX(t) + 14, GY - 118 * .82 - 12 * .82 - 150 * .82];
+  const appuHead = [appuBoyX(t) - 4, GY - (132 + 118 + 64 * 1.3) * .82];        // crown of the boy's head
   let tgt = patting ? [640 + Math.sin(t * 1.3) * 18, patY] : knee;
   const pt = E(t, 17.9, 18.5) * (1 - E(t, 21.3, 21.9));
   if (pt > 0) tgt = [lerp(tgt[0], 420, pt), lerp(tgt[1], 930, pt)];
   const hp = E(t, T.headPat - .4, T.headPat) * (1 - E(t, T.headPat1, T.headPat1 + .5));
-  if (hp > 0) tgt = [lerp(tgt[0], appuHead[0] + 18, hp), lerp(tgt[1], appuHead[1] - 6 + Math.sin(t * 4) * 3 * hp, hp)];
+  if (hp > 0) tgt = [lerp(tgt[0], appuHead[0] + 6, hp), lerp(tgt[1], appuHead[1] + Math.sin(t * 4) * 3 * hp, hp)];
   if (!patting && pt === 0 && hp === 0 && t > 6.3) { const u = E(t, 6.3, 6.8) * (t < 9.1 ? 1 : E(t, 11.1, 11.6)); tgt = [lerp(640, knee[0], u), lerp(patY, knee[1], u)]; }
   P.aF = { to: tgt, bend: -1 };
   P.aB = { to: W2(P, 52, 30), bend: -1 };
@@ -144,7 +144,7 @@ function appuPose(t) {
   if (!patting) { const u = E(t, 39.0, 39.4); tgt = [lerp(SAP2 + 36, knee[0], u), lerp(patY, knee[1], u)]; }
   const hp = E(t, T.oldPat - .4, T.oldPat);
   const gx = GIRLX(t)[0];
-  if (hp > 0) { const gh = [gx + 14, GY - 120 * .8 - 6 * .8 - 152 * .8]; tgt = [lerp(tgt[0], gh[0] + 14, hp), lerp(tgt[1], gh[1] - 6 + Math.sin(t * 4) * 3 * hp, hp)]; }
+  if (hp > 0) { const gh = [gx - 4, GY - (122 + 118 + 64 * 1.34) * .8]; tgt = [lerp(tgt[0], gh[0] + 6, hp), lerp(tgt[1], gh[1] + Math.sin(t * 4) * 3 * hp, hp)]; }
   P.aF = { to: tgt, bend: -1 }; P.aB = { to: W2(P, 52, 30), bend: -1 };
   return P;
 }
