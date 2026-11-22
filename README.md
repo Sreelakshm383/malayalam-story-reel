@@ -4,32 +4,34 @@ My Malayalam motivational story video project.
 
 **Film:** *മുത്തശ്ശന്റെയും മുത്തശ്ശിയുടെയും വീട് (A Home Called Grandma & Grandpa)*. It is a 2-minute illustrated short film about a child's summer holidays with his grandparents, made for Instagram Reels and YouTube Shorts.
 
-- Video: 1080 × 1920 (9:16), 30 fps, H.264 + AAC 48 kHz, about 126 s
+- Video: 1080 × 1920 (9:16), 30 fps, H.264 + AAC 48 kHz, about 106 s
 - Six scenes and 19 Malayalam lines with separate child, grandmother, grandfather, grown-up and narrator voices
 - Subtitles highlight the Malayalam word by word, with a smaller English line underneath, kept inside the Reels safe area
-- Soft piano and string score kept about 12 dB under the dialogue and ducked during every line
+- Natural, flowing conversation: Microsoft's neural Malayalam voices (Sobhana, Midhun), each line spoken in one go, long pauses inside a line shortened to 0.3 s, replies following each other with about 0.2–0.45 s between speakers
+- Levels: dialogue 100 %, background sound (music + ambience) 75 %
+- Soft piano and string score kept well under the dialogue and ducked during every line
 - Quiet background sounds: birds, wind, footsteps, the kitchen fire, crickets, rain and a clock
 - Audio is normalised to −14 LUFS for Instagram
 
 ## Build
 
 ```bash
-pip install -r requirements.txt          # plus ffmpeg, rubberband-cli, and Malayalam fonts (Manjari / Noto Sans Malayalam)
+pip install -r requirements.txt          # plus ffmpeg and fonts: Manjari (fonts-smc-manjari) and Noto Sans (fonts-noto-core)
 ./make_film.sh                           # writes output/A_Home_Called_Grandma_and_Grandpa.mp4 and runs the tests
 ```
 
-The first run downloads the `facebook/mms-tts-mal` voice model from huggingface.co. To use a local copy, set `MMS_MODEL_DIR=/path/to/model`. Set `WORKERS` to the number of CPU cores to use.
+The voices come from Microsoft's online speech service through edge-tts, so the first run needs a connection to speech.platform.bing.com; the audio is cached in `build/voice/.cache/`. Check Microsoft's terms before using the voices commercially. Set `WORKERS` to the number of CPU cores to use.
 
 ## Pipeline
 
 | Step | File | Output |
 |---|---|---|
 | Script (all Malayalam lines) | `story.json` | |
-| Voices: MMS-TTS Malayalam, shaped per character with pitch, formant and pace | `audio/voices.py` | `build/voice/*.wav`, `meta.json` (lip-sync envelopes) |
+| Voices: Microsoft neural Malayalam (edge-tts), cast per character with pitch and pace; pauses tightened for flowing conversation | `audio/voices.py` | `build/voice/*.wav`, `meta.json` (lip-sync envelopes, word timings) |
 | Shot list and timing | `film/timeline.py` | `build/timeline.json` |
 | Music | `audio/music.py` | `build/music.wav` |
 | Background sounds | `audio/ambience.py` | `build/ambience.wav` |
-| Mix with music ducked under dialogue | `audio/mix.py` | `build/mix.wav` → `build/mix_norm.wav` |
+| Mix: dialogue 100 %, background 75 %, music ducked under dialogue | `audio/mix.py` | `build/mix.wav` → `build/mix_norm.wav` |
 | Characters (one fixed design each) | `film2d/chars.py` | |
 | Backgrounds and props | `film2d/scenes.py` | |
 | Shots: acting, lip-sync and camera moves | `film2d/shots2d.py` | |

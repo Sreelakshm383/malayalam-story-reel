@@ -59,8 +59,11 @@ def main():
         out[k] = g
     duck = np.interp(np.arange(N), np.arange(len(out)) * hop, out)
     vl = loud(V)
-    music_gain = db(vl - loud(M) - 9) * (1 - duck * (1 - db(-8)))     # ~9 dB under voice, 17 dB under while talking
-    amb_gain = db(vl - loud(A) - 17) * (1 - duck * (1 - db(-4)))
+    # Levels as asked: dialogue 100 %, background sound (music + ambience) 75 % of its previous level (−2.5 dB).
+    DIALOGUE, BACKGROUND = 1.00, 0.75
+    V = V * DIALOGUE
+    music_gain = BACKGROUND * db(vl - loud(M) - 9) * (1 - duck * (1 - db(-8)))     # ~11.5 dB under voice, ~19.5 dB under while talking
+    amb_gain = BACKGROUND * db(vl - loud(A) - 17) * (1 - duck * (1 - db(-4)))
     mix = V + M * music_gain[:, None] + A * amb_gain[:, None]
     mix /= max(1.0, np.max(np.abs(mix)) / 0.95)
     sf.write(os.path.join(B, "mix.wav"), mix.astype(np.float32), SR)

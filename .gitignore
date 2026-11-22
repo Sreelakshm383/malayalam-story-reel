@@ -5,3 +5,4 @@ audio/tts_test.py
 film/test_lineup.py
 film2d/__pycache__/
 output/
+.venv/

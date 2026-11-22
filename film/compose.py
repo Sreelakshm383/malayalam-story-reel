@@ -88,8 +88,20 @@ def segments(y, sr=48000):
     return [s for s in merged if s[1] - s[0] > 0.05]
 
 
+_META = None
+
+
 def word_times(cue):
-    """start time of each word: chunks map onto detected speech segments, words by length"""
+    """start time of each word. Preferred: the word boundaries the voice service reported (build/voice/meta.json),
+    matched to the script's words one for one. Fallback: chunks mapped onto detected speech segments, words by length."""
+    global _META
+    if _META is None:
+        _META = json.load(open(os.path.join(B, "voice", "meta.json"), encoding="utf-8"))
+    toks, svc = cue["text"].split(), _META.get(cue["id"], {}).get("words") or []
+    if len(svc) == len(toks):
+        ts = [min(max(0.0, float(t)), cue["dur"] - 0.05) for _, t in svc]
+        for i in range(1, len(ts)): ts[i] = max(ts[i], ts[i - 1])
+        return list(zip(toks, ts))
     y, sr = sf.read(os.path.join(B, "voice", cue["id"] + ".wav"))
     ch = chunks(cue["text"])
     segs = segments(y, sr)

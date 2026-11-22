@@ -5,11 +5,11 @@ ap = argparse.ArgumentParser(); ap.add_argument('lines'); ap.add_argument('dir')
 a = ap.parse_args()
 from faster_whisper import WhisperModel
 m = WhisperModel(a.model, device='cpu', compute_type='int8')
-import os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.pyenv'))
+import os; sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.pyenv'))
 from indic_transliteration import sanscript
 from indic_transliteration.sanscript import transliterate as tr
 def latin(s):
-    s = tr(s, sanscript.MALAYALAM, sanscript.HK); s = tr(s, sanscript.DEVANAGARI, sanscript.HK)
+    for sc in (sanscript.MALAYALAM, sanscript.DEVANAGARI, sanscript.GURMUKHI, sanscript.TELUGU, sanscript.KANNADA, sanscript.TAMIL, sanscript.BENGALI): s = tr(s, sc, sanscript.HK)
     return s.lower()
 def skel(s):
     # consonant skeleton: fold aspirates, retroflex/dental, voicing and doubling; drop vowels
@@ -22,7 +22,11 @@ def skel(s):
 norm0 = lambda s: re.sub(r'[\s\.,!?…\-“”"\'‍‌]', '', s)
 bad = 0
 for L in json.load(open(a.lines, encoding='utf-8')):
-    x, sr = sf.read(f"{a.dir}/{L['id']}.wav", dtype='float32'); pad = np.zeros(int(0.6 * sr), 'float32')
+    x, sr = sf.read(f"{a.dir}/{L['id']}.wav", dtype='float32')
+    if x.ndim > 1: x = x.mean(1)
+    if sr != 16000:                      # Whisper expects 16 kHz audio
+        import soxr; x = soxr.resample(x, sr, 16000).astype('float32'); sr = 16000
+    pad = np.zeros(int(0.6 * sr), 'float32')
     segs, _ = m.transcribe(np.concatenate([pad, x, pad]), language='ml', beam_size=5, temperature=0)
     heard = ''.join(s.text for s in segs).strip()
     r = difflib.SequenceMatcher(None, skel(L.get('asr', L['text'])), skel(heard)).ratio()
