@@ -1,12 +1,13 @@
 """Final mix: dialogue on top, music + ambience well below and side-chain ducked
 under every line. writes build/mix.wav (48 kHz stereo, normalised later to -14 LUFS)"""
-import json, os
+import json, os, sys
 import numpy as np, soundfile as sf
 from scipy.signal import fftconvolve, butter, sosfilt
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
+from reel import B, CFG, STORY
 SR = 48000
-B = os.path.join(ROOT, "build")
 
 def db(x): return 10 ** (x / 20)
 

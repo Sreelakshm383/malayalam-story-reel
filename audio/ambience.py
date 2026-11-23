@@ -1,10 +1,12 @@
 """Ambience + foley bed (birds, wind, footsteps, kitchen fire, crickets, rain,
 clock) laid out from build/timeline.json. writes build/ambience.wav"""
-import json, os
+import json, os, sys
 import numpy as np, soundfile as sf
 from scipy.signal import butter, sosfilt
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
+from reel import B, CFG, STORY
 SR = 48000
 rng = np.random.default_rng(11)
 
@@ -98,7 +100,7 @@ def clock(n):
     return y
 
 def main():
-    tl = json.load(open(os.path.join(ROOT, "build", "timeline.json")))
+    tl = json.load(open(os.path.join(B, "timeline.json")))
     total = sum(s["frames"] for s in tl) / 30
     N = int(SR * total); L = np.zeros(N); R = np.zeros(N)
     def put(name, yl, yr=None, fade=0.6, pre=0.3, post=0.3):
@@ -142,7 +144,7 @@ def main():
         put(nm, lambda n: clock(n) * 0.5 + lp(rng.normal(0, 1, n), 250) * 0.02)
     y = np.stack([L, R], 1)
     y /= np.max(np.abs(y)) + 1e-9
-    sf.write(os.path.join(ROOT, "build", "ambience.wav"), (y * 0.8).astype(np.float32), SR)
+    sf.write(os.path.join(B, "ambience.wav"), (y * 0.8).astype(np.float32), SR)
     print("ambience", total)
 
 if __name__ == "__main__":

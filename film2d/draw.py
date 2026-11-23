@@ -1,8 +1,12 @@
-"""Small cairo helpers: colours, gradients, smooth paths, soft shadows."""
-import math
+"""Small cairo helpers: colours, gradients, smooth paths, soft shadows,
+and the anime cel pass (flat tone bands + ink outlines) for characters."""
+import math, os, sys
 import cairo
 import numpy as np
 from PIL import Image, ImageFilter
+from scipy.ndimage import maximum_filter
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from reel import ANIME
 
 W, H = 1080, 1920
 
@@ -136,3 +140,79 @@ def lerp(a, b, t):
 def ss(x):
     x = max(0.0, min(1.0, x))
     return x * x * (3 - 2 * x)
+
+
+# ------------------------------------------------------------------ anime cel pass
+INK = np.array([0.16, 0.09, 0.11], np.float32)
+
+
+def _smooth_quant(L, step, soft=0.12):
+    """snap luminance to flat bands (anti-aliased band edges)"""
+    q = L / step
+    f = np.floor(q); r = q - f
+    k = np.clip((r - (0.5 - soft)) / (2 * soft), 0, 1)
+    return (f + k * k * (3 - 2 * k)) * step
+
+
+def cel(cr, bbox, fn, R):
+    """Draw fn(ctx) offscreen for the user-space box bbox=(x0,y0,x1,y1), turn its soft
+    gradients into flat anime tone bands, ink the silhouette and the colour borders,
+    then paint it back. R is the character's head radius in user units. Returns fn's result."""
+    m = cr.get_matrix()
+    corners = [cr.user_to_device(x, y) for x in (bbox[0], bbox[2]) for y in (bbox[1], bbox[3])]
+    tgt = cr.get_group_target()
+    try:
+        TW, TH = tgt.get_width(), tgt.get_height()
+    except Exception:
+        TW, TH = 4096, 4096
+    pad = 8
+    x0 = max(0, int(math.floor(min(c[0] for c in corners))) - pad); x1 = min(TW, int(math.ceil(max(c[0] for c in corners))) + pad)
+    y0 = max(0, int(math.floor(min(c[1] for c in corners))) - pad); y1 = min(TH, int(math.ceil(max(c[1] for c in corners))) + pad)
+    w, h = x1 - x0, y1 - y0
+    if w <= 2 or h <= 2:
+        return fn(cr)
+    surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+    c2 = cairo.Context(surf); c2.set_antialias(cairo.ANTIALIAS_BEST)
+    c2.set_matrix(cairo.Matrix(m.xx, m.yx, m.xy, m.yy, m.x0 - x0, m.y0 - y0))
+    res = fn(c2)
+    surf.flush()
+    buf = np.ndarray((h, w, 4), np.uint8, surf.get_data())
+    P = buf[..., [2, 1, 0]].astype(np.float32) / 255.0
+    A = buf[..., 3].astype(np.float32) / 255.0
+    C = P / np.maximum(A, 1e-4)[..., None]
+    Rd = R * math.sqrt(abs(m.xx * m.yy - m.xy * m.yx))     # head radius in pixels
+    lw = max(1.4, min(7.0, Rd * 0.075))
+    # interior ink where flat colour regions meet (computed before banding, so shading bands stay unlined)
+    d = np.zeros((h, w), np.float32)
+    dx = np.abs(np.diff(C, axis=1)).sum(-1) * np.minimum(A[:, 1:], A[:, :-1])
+    dy = np.abs(np.diff(C, axis=0)).sum(-1) * np.minimum(A[1:], A[:-1])
+    d[:, 1:] = np.maximum(d[:, 1:], dx); d[1:] = np.maximum(d[1:], dy)
+    inner = np.clip((d - 0.16) / 0.22, 0, 1)
+    if Rd > 18:
+        k = max(1, int(round(lw * 0.45)))
+        if k > 1:
+            inner = maximum_filter(inner, size=k)
+        inner *= 0.7
+    else:
+        inner *= 0.35
+    # flat tone bands + a little extra vividness
+    L = C @ np.array([0.299, 0.587, 0.114], np.float32)
+    Lq = _smooth_quant(L, 0.085)
+    C = C * ((Lq + 0.02) / (L + 0.02))[..., None]
+    l2 = (C @ np.array([0.299, 0.587, 0.114], np.float32))[..., None]
+    C = np.clip(l2 + (C - l2) * 1.12, 0, 1)
+    C = C * (1 - inner[..., None]) + INK * inner[..., None]
+    # silhouette outline
+    k = max(2, int(round(lw)))
+    Ad = maximum_filter(A, size=k * 2 + 1)
+    Ad = np.asarray(Image.fromarray((Ad * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(0.6))).astype(np.float32) / 255
+    outA = A + Ad * (1 - A)
+    outP = C * A[..., None] + INK * (Ad * (1 - A))[..., None]
+    o = np.empty((h, w, 4), np.uint8)
+    o[..., 0] = np.clip(outP[..., 2] * 255 + 0.5, 0, 255); o[..., 1] = np.clip(outP[..., 1] * 255 + 0.5, 0, 255)
+    o[..., 2] = np.clip(outP[..., 0] * 255 + 0.5, 0, 255); o[..., 3] = np.clip(outA * 255 + 0.5, 0, 255)
+    out = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+    np.ndarray((h, w, 4), np.uint8, out.get_data())[:] = o
+    out.mark_dirty()
+    cr.save(); cr.identity_matrix(); cr.set_source_surface(out, x0, y0); cr.paint(); cr.restore()
+    return res

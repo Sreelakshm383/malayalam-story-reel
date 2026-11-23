@@ -1,64 +1,11 @@
 """Shot list for the 2D illustrated version. Same timeline/voices as before.
 frame(name, f) -> cairo ImageSurface 1080x1920"""
-import json, math, os, random
+import math, random
 import cairo
 from draw import (W, H, rgb, shade, mix, col, lin, rad, ellipse, rrect, glow, shadow, new_surface, blurred_surface, lerp, ss)
 import chars, scenes as S
 from chars import draw_person, draw_blanket
-
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-B = os.path.join(ROOT, "build")
-FPS = 30
-TL = json.load(open(os.path.join(B, "timeline.json")))
-META = json.load(open(os.path.join(B, "voice", "meta.json")))
-SHOT = {s["name"]: s for s in TL}
-
-
-def mouth(shot, who, t):
-    for c in shot["cues"]:
-        if c["speaker"] == who and c["start"] <= t < c["start"] + c["dur"]:
-            env = META[c["id"]]["env"]; k = int((t - c["start"]) * FPS)
-            if 0 <= k < len(env):
-                return min(1.0, env[k] * (0.8 + 0.2 * math.sin(t * 23)))
-    return 0.0
-
-
-def cue(shot, lid):
-    return next(c for c in shot["cues"] if c["id"] == lid)
-
-
-def blink(t, seed):
-    r = random.Random(seed)
-    for k in range(60):
-        bt = k * 3.1 + r.uniform(0, 2.4)
-        d = t - bt
-        if 0 <= d < 0.16:
-            return 1 - abs(d - 0.08) / 0.08
-    return 0.0
-
-
-def camera(cr, z, cx, cy):
-    cr.translate(W / 2, H / 2); cr.scale(z, z); cr.translate(-cx, -cy)
-
-
-def cam_lerp(t, dur, a, b):
-    u = ss(t / dur)
-    return tuple(lerp(a[i], b[i], u) for i in range(3))
-
-
-_cache = {}
-def cached(key, fn, blur=0):
-    """static background painted once per shot into a 2x-oversized surface (optionally blurred)"""
-    if key not in _cache:
-        s, cr = new_surface(W * 2, H * 2)
-        cr.translate(W / 2, H / 2)
-        fn(cr)
-        _cache[key] = blurred_surface(s, blur) if blur else s
-    return _cache[key]
-
-
-def paint_cached(cr, surf):
-    cr.save(); cr.translate(-W / 2, -H / 2); cr.set_source_surface(surf, 0, 0); cr.paint(); cr.restore()
+from base import B, FPS, TL, META, SHOT, mouth, cue, blink, camera, cam_lerp, cached, paint_cached, _cache, render
 
 
 # ------------------------------------------------------------------ shared sets
@@ -362,11 +309,7 @@ def bed_scene(cr, t, shot, z0, z1, dur, gma_kw=None, child_kw=None, stroke=0.0):
     S.nilavilakku(cr, 125, 1362, 0.9, t)
     ck = dict(smile=0.8, blink=blink(t, 12), gaze=(0.5, -0.2), turn=0.25, tilt=0.12)
     ck.update(child_kw or {})
-    chars.draw_head_only = None
-    cr.save(); cr.translate(540, 1215); cr.scale(78, 78); cr.rotate(ck.get("tilt", 0))
-    p = dict(chars.DEFAULT); p.update(ck)
-    chars.draw_head(cr, "child", chars.SPEC["child"], p)
-    cr.restore()
+    chars.draw_head_at(cr, "child", 540, 1215, 78, **ck)
     draw_blanket(cr, 540, 1290, 78, 4.6, 2.3)
     gk = dict(legs=("sit", 2.0), turn=-0.55, smile=0.85, gaze=(-0.7, 0.3), tilt=-0.08, blink=blink(t, 13), armR=(15, 70), armL=(15, 80))
     gk.update(gma_kw or {})
@@ -547,10 +490,4 @@ FUNCS = {"title": sh_title, "s1_run": sh_s1_run, "s1_gma": sh_s1_gma, "s1_gpa": 
 
 
 def frame(name, f):
-    shot = SHOT[name]
-    s, cr = new_surface()
-    col(cr, "#000000"); cr.paint()
-    cr.save()
-    FUNCS[name](cr, f / FPS, shot)
-    cr.restore()
-    return s
+    return render(FUNCS, name, f)
