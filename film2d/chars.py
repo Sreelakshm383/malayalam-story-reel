@@ -36,12 +36,34 @@ SPEC = {
     "woman": dict(R=1.0, torso=2.4, legs=3.4, arm=(1.28, 1.18), sw=0.98, ww=0.86, limb=0.22, neck=0.24,
                   skin="#c48a5c", hair="#1b1216", style="long", eye=1.16, top="#b8325a", trim="#e0b04a",
                   bottom="#f1e4cc", clothes="kurta", iris="#5a2f1c", iris2="#c9853a", headry=1.04, lashes=True),
+    # --- "Yakshi" cast (production/yakshi)
+    "yk_girl": dict(R=1.0, torso=1.5, legs=1.8, arm=(0.85, 0.8), sw=0.72, ww=0.66, limb=0.21, neck=0.13,
+                    skin="#b9784c", hair="#120a0e", style="plaits", eye=1.3, top="#f6f3ec", trim="#22397a",
+                    bottom="#22397a", clothes="skirt", iris="#2a1208", iris2="#7a4a24", headry=1.0, lashes=True,
+                    ribbon="#c8182a", bindi="#140a08", mole=True),
+    "yk_woman": dict(R=1.0, torso=2.4, legs=3.45, arm=(1.28, 1.18), sw=0.98, ww=0.88, limb=0.22, neck=0.25,
+                     skin="#b9784c", hair="#0e080c", style="long", eye=1.12, top="#efe3c6", trim="#d4a63a",
+                     bottom="#f4ecda", clothes="saree", iris="#2a1208", iris2="#8a5428", headry=1.04, lashes=True,
+                     bindi="#140a08", mole=True),
+    "yk_teacher": dict(R=1.0, torso=2.3, legs=3.0, arm=(1.25, 1.15), sw=1.2, ww=1.22, limb=0.27, neck=0.2,
+                       skin="#b98157", hair="#3a3436", style="bun", eye=1.0, top="#7a1f2b", trim="#7a1f2b",
+                       bottom="#dba22a", clothes="saree", iris="#2e1c10", headry=1.06, lashes=True, glasses=True,
+                       bindi="#b0121d"),
+    "yk_boy": dict(R=1.0, torso=1.55, legs=1.75, arm=(0.85, 0.8), sw=0.78, ww=0.72, limb=0.24, neck=0.12,
+                   skin="#a86e45", hair="#120c0a", style="kid", eye=1.25, top="#f4f2ec", trim="#22397a",
+                   bottom="#22397a", clothes="kid", iris="#2a1208", headry=1.0),
+    "yk_boy2": dict(R=1.0, torso=1.55, legs=1.75, arm=(0.85, 0.8), sw=0.8, ww=0.76, limb=0.24, neck=0.12,
+                    skin="#c08a5e", hair="#1a120e", style="kid", eye=1.2, top="#f4f2ec", trim="#22397a",
+                    bottom="#22397a", clothes="kid", iris="#3a2010", headry=1.0),
+    "yk_girl2": dict(R=1.0, torso=1.5, legs=1.8, arm=(0.85, 0.8), sw=0.74, ww=0.68, limb=0.21, neck=0.13,
+                     skin="#c99168", hair="#140c10", style="plaits", eye=1.3, top="#f6f3ec", trim="#22397a",
+                     bottom="#22397a", clothes="skirt", iris="#3a1a0c", headry=1.0, lashes=True, ribbon="#2a6fd0"),
 }
 PANTS = ("kid", "adult", "skirt", "kurta")
 
 DEFAULT = dict(turn=0.0, tilt=0.0, mouth=0.0, smile=0.7, blink=0.0, gaze=(0.0, 0.0), brows=0.0, lean=0.0,
                armL=(8, 10), armR=(8, 10), legs="stand", happy_eyes=False, sleepy=0.0, body_turn=0.0,
-               hold=None, bob=0.0, squash=0.0, back=False, alpha=1.0, tears=0.0, hair_sway=0.0, wet=0.0)
+               hold=None, bob=0.0, squash=0.0, back=False, alpha=1.0, tears=0.0, hair_sway=0.0, wet=0.0, glow=0.0)
 
 
 def arm_points(sx, shx, shy, a1, a2, L1, L2):
@@ -317,6 +339,21 @@ def draw_head(cr, key, s, p):
         cr.curve_to(bx + 0.5 + sw_ * 0.5, 0.45, bx + 0.35 + sw_ * 0.3, 0.2, bx + 0.32 + sw_ * 0.2, 0.35)
         cr.curve_to(bx + 0.4, -0.1, bx + 0.25, -0.55, bx - 0.1, -0.6); cr.close_path(); cr.fill()
         col(cr, s["trim"]); ellipse(cr, bx + 0.12, -0.78, 0.1, 0.13, 0.5); cr.fill()
+    elif s["style"] == "plaits":
+        sw_ = p["hair_sway"]
+        for sx in (-1, 1):
+            if (sx < 0 and t > 0.6) or (sx > 0 and t < -0.6):
+                continue
+            bx = sx * 0.9 - t * 0.3
+            for k in range(7):   # braid segments
+                yy = 0.05 + k * 0.24; xx = bx + sx * 0.05 * k + sw_ * 0.08 * k
+                col(cr, shade(hair, 0.06 if k % 2 else -0.06)); ellipse(cr, xx, yy, 0.17 - k * 0.008, 0.15, sx * 0.25); cr.fill()
+            ex_, ey_ = bx + sx * 0.35 + sw_ * 0.56, 1.72
+            col(cr, s.get("ribbon", "#c8182a"))
+            for a_ in (-0.6, 0.6):
+                ellipse(cr, ex_ + math.sin(a_) * 0.16, ey_ - 0.02, 0.15, 0.08, a_); cr.fill()
+            ellipse(cr, ex_, ey_, 0.06, 0.06); cr.fill()
+            col(cr, hair); cr.move_to(ex_ - 0.08, ey_ + 0.03); cr.line_to(ex_, ey_ + 0.28); cr.line_to(ex_ + 0.08, ey_ + 0.03); cr.close_path(); cr.fill()
     elif s["style"] == "long":
         sw_ = p["hair_sway"]
         lin(cr, 0, -1.0, 0, 1.9, [(0, shade(hair, 0.05)), (1, shade(hair, -0.15))])
@@ -425,6 +462,19 @@ def draw_head(cr, key, s, p):
             bx = sx * 0.42 + t * 0.32; by = -0.36 - 0.1 * p["brows"] - (0.06 if young else 0)
             cr.set_line_width(0.05 if s.get("lashes") else 0.07)
         cr.move_to(bx - sx * 0.17, by + 0.0); cr.curve_to(bx - sx * 0.07, by - 0.07, bx + sx * 0.08, by - 0.07, bx + sx * 0.19, by + 0.04); cr.stroke()
+    if s.get("bindi") and s["style"] != "bun":
+        col(cr, s["bindi"]); cr.arc(t * 0.35, -0.36, 0.055, 0, 2 * math.pi); cr.fill()
+    elif s.get("bindi"):
+        col(cr, s["bindi"]); cr.arc(t * 0.35, -0.38, 0.06, 0, 2 * math.pi); cr.fill()
+    if s.get("mole"):
+        col(cr, shade(skin, -0.55)); cr.arc(0.5 + t * 0.3, 0.42, 0.035, 0, 2 * math.pi); cr.fill()
+    if s.get("glasses"):
+        col(cr, "#141012"); cr.set_line_width(0.06)
+        for sx in (-1, 1):
+            ex = sx * (0.4 if ANIME else 0.37) * (1 - 0.1 * abs(t)) + t * 0.3
+            cr.arc(ex, 0.05, 0.3, 0, 2 * math.pi); cr.stroke()
+            col(cr, (1, 1, 1, 0.18)); cr.arc(ex - 0.1, -0.06, 0.12, 0, 2 * math.pi); cr.fill(); col(cr, "#141012")
+        cr.move_to(-0.1 + t * 0.3, 0.02); cr.curve_to(-0.04 + t * 0.3, -0.04, 0.04 + t * 0.3, -0.04, 0.1 + t * 0.3, 0.02); cr.stroke()
     # nose
     nx = t * 0.42
     if ANIME:   # anime nose: a tiny shadow tick
@@ -465,9 +515,9 @@ def draw_head(cr, key, s, p):
         cr.curve_to(mx, 0.53, mx + 0.15, 0.5, mx + 0.3, 0.53); cr.curve_to(mx + 0.28, 0.46, mx + 0.12, 0.43, mx, 0.48); cr.fill()
     # front hair
     hl = shade(hair, 0.25)
-    if ANIME and s["style"] in ("kid", "adult", "ponytail", "long"):
+    if ANIME and s["style"] in ("kid", "adult", "ponytail", "long", "plaits"):
         anime_fringe(cr, s, p, t, ry)
-    elif s["style"] in ("ponytail", "long"):
+    elif s["style"] in ("ponytail", "long", "plaits"):
         anime_fringe(cr, s, p, t, ry)
     elif s["style"] in ("kid", "adult"):
         lin(cr, 0, -1.1, 0, -0.2, [(0, shade(hair, 0.12)), (1, hair)])
@@ -495,7 +545,8 @@ def draw_head(cr, key, s, p):
         col(cr, shade(hair, -0.3)); cr.set_line_width(0.03)
         for k in (-0.5, -0.25, 0.25, 0.5):
             cr.move_to(k * 0.4, -0.66); cr.curve_to(k * 1.2, -0.75, k * 1.7, -0.5, k * 1.85, -0.15); cr.stroke()
-        col(cr, "#a3121d"); cr.arc(t * 0.35, -0.36, 0.06, 0, 2 * math.pi); cr.fill()   # bindi
+        if not s.get("bindi"):
+            col(cr, "#a3121d"); cr.arc(t * 0.35, -0.36, 0.06, 0, 2 * math.pi); cr.fill()   # bindi
     elif s["style"] == "bald":
         # shiny head + grey hair on the sides
         rad(cr, -0.25, -0.75, 0, 0.35, [(0, (1, 1, 1, 0.28)), (1, (1, 1, 1, 0))]); cr.arc(-0.25, -0.75, 0.35, 0, 6.3); cr.fill()
@@ -522,6 +573,9 @@ def draw_head(cr, key, s, p):
 def anime_eye(cr, s, p, ex, ey, rx, ry_, sx, e, blink, gx, gy):
     """big glossy anime eye: gradient iris, pupil, two highlights, heavy upper lash line"""
     skin = s["skin"]; iris = s["iris"]; iris2 = s.get("iris2", mix(iris, "#d0913f", 0.65))
+    g = p.get("glow", 0.0)
+    if g > 0:
+        iris = mix(iris, "#c06010", g); iris2 = mix(iris2, "#fff0a0", g)
     young = s.get("lashes") or s["style"] in ("kid", "ponytail")
     cr.save()
     ellipse(cr, ex, ey, rx, ry_); cr.clip()
@@ -537,6 +591,8 @@ def anime_eye(cr, s, p, ex, ey, rx, ry_, sx, e, blink, gx, gy):
     col(cr, "#ffffff")
     ellipse(cr, ix - irx * 0.36, iy - iry * 0.4, irx * 0.36, iry * 0.27, -0.5); cr.fill()
     cr.arc(ix + irx * 0.4, iy + iry * 0.38, irx * 0.14, 0, 2 * math.pi); cr.fill()
+    if g > 0:
+        rad(cr, ix, iy, 0, irx * 1.2, [(0, (1, 0.85, 0.4, 0.6 * g)), (1, (1, 0.6, 0.1, 0))]); cr.arc(ix, iy, irx * 1.2, 0, 2 * math.pi); cr.fill()
     if p["tears"] > 0:   # welling tears: glossy waterline
         col(cr, (0.75, 0.9, 1.0, 0.55 * p["tears"])); ellipse(cr, ex, ey + ry_ * 0.75, rx * 0.95, ry_ * 0.35); cr.fill()
     if blink > 0:
@@ -578,6 +634,8 @@ def anime_fringe(cr, s, p, t, ry):
     hair = s["hair"]; st = s["style"]
     hl = shade(hair, 0.35) if sum(rgb(hair)[:3]) < 1.5 else shade(hair, 0.5)
     top = -ry - (0.14 if st == "kid" else 0.17)
+    if st == "plaits":
+        st = "long_nolocks"
     if st in ("ponytail", "long"):   # side locks framing the face
         for sx in (-1, 1):
             if (sx < 0 and t > 0.6) or (sx > 0 and t < -0.6):
