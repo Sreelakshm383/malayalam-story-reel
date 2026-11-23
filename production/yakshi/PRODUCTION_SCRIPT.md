@@ -1,9 +1,10 @@
-# യക്ഷി (YAKSHI): 3D Animated Short. Production Script
+# യക്ഷി (YAKSHI): Animated Short. Production Script (v2: 2D mythic illustrated style)
 
 **Format:** Vertical 9:16 (1080×1920), 24 fps cinematic look (export 30 fps for Reels/Shorts)
 **Duration:** 46.41 s. This is the exact length of the uploaded voice-over (`VID-20261123-WA0006.mp4`)
 **Language:** Malayalam (original voice-over, unchanged)
-**Visual reference:** dark mythic Indian-epic game-trailer look: amber firelight against cold moonlit blue, heavy volumetric fog, drifting embers, gold metal glints, deep blacks, slow heavy camera. Characters are **original designs** in a stylized-realistic 3D feature-film style. Nothing is copied from the reference trailer's characters, logos or titles.
+**Visual reference (v2):** the vertical mythic reel you shared (`VID-20261123-WA0007.mp4`). That means **hand-painted 2D Indian-mythology animation**: bold expressive ink linework, painterly cel shading, a 2.5D parallax camera, extreme close-ups of kohl-lined eyes, glowing golden mandala circles and sacred-geometry sigils, purple-blue magical energy wisps, sparkling gold particles, huge moon halos, lightning flashes, a palette of saffron-orange, gold, deep violet and black. Characters are **original designs**. Nothing is copied from the reference reel's characters, artwork or watermark.
+*(v1 described a dark 3D / game-trailer look. That style block is kept at the end of this file in case you want to switch back.)*
 
 ---
 
@@ -52,7 +53,9 @@ Generate each character **once** as a turnaround sheet (front / ¾ / profile / b
 - **Hair:** **waist-length, loose, thick jet-black hair**, slightly wavy, moving like a heavy curtain.
 - **Outfit:** **cream-white Kerala kasavu set-saree with a broad gold zari border**, pallu falling over the left shoulder, cream blouse with gold edging. Barefoot, thin silver anklets (a soft chime when she walks). Single string of jasmine in the hair in Scenes 8 and 10 only.
 - **Body:** tall, slender, unhurried; walks barefoot with a gliding, weightless step.
-- **"Yakshi" state (Scenes 12 and 16 only):** same woman and costume, eyes catch a faint **amber glow**, hair lifts slightly as if underwater, a pale moon-rim light outlines her. She never turns grotesque. She stays beautiful and in control.
+- **2D design notes:** strong black kohl wings, the bindi drawn as a crisp dot between the brows (matching the eye close-ups in the reference reel), hair drawn as large flowing ink shapes with violet highlights.
+- **"Yakshi" state (Scenes 9–12):** a **thin glowing golden mandala ring** appears behind her head, golden sparks orbit her hands, and **violet energy wisps** curl from her hair ends.
+- **"Yakshi" state (Scenes 12 and 16 only, original v1 note):** same woman and costume, eyes catch a faint **amber glow**, hair lifts slightly as if underwater, a pale moon-rim light outlines her. She never turns grotesque. She stays beautiful and in control.
 
 ### C3: THE TEACHER (~45)
 - **Face:** round face, wheat-brown skin, **thick round black-framed glasses**, a red sindoor line in the parting, kind laugh lines she tries to hide.
@@ -74,10 +77,13 @@ Generate each character **once** as a turnaround sheet (front / ¾ / profile / b
 - **L4 Sacred grove (kavu):** serpent stones, banyan roots, rows of small oil lamps in the mist.
 
 ### Global style block (paste at the end of EVERY image/video prompt)
-> *Stylized-realistic 3D animated feature film, original characters, Pixar-level character appeal with Unreal Engine 5 photoreal rendering, dark Indian mythic epic mood, volumetric fog, flickering oil-lamp amber firelight against cold moonlit teal-blue, floating embers and dust motes, high contrast deep blacks, gold metal glints, shallow anamorphic depth of field, subtle film grain, cinematic color grade, vertical 9:16 composition, no text, no watermark.*
+> *Hand-painted 2D Indian mythological animation style, original characters, bold expressive ink linework with varying line weight, painterly cel shading with soft gradients, graphic-novel composition, rich saffron-orange, gold, deep violet and black palette, glowing golden light effects, sparkling gold dust particles, soft film grain and subtle chromatic aberration, 2.5D parallax depth layers, dramatic rim light, vertical 9:16 composition, no text, no watermark.*
+
+**Motion style for Veo / Flow (add to every video prompt):**
+> *Animate like a 2.5D parallax illustration: foreground, character and background layers move at different speeds; smooth slow camera drift; hair, cloth, particles and light effects animate fluidly while the line-art stays crisp; no morphing of faces or outlines.*
 
 ### Negative prompt (if the tool supports it)
-> *cartoon flat shading, anime, low-poly, extra fingers, distorted hands, face morphing, changing outfit, changing hairstyle, text, subtitles, logos, watermark, gore, blood splatter, nudity.*
+> *3D render, CGI, photorealistic, live action, chibi, low detail, extra fingers, distorted hands, face morphing, wobbling line-art, changing outfit, changing hairstyle, text, subtitles, logos, watermark, gore, blood splatter, nudity.*
 
 ---
 
@@ -270,6 +276,26 @@ Generate each character **once** as a turnaround sheet (front / ¾ / profile / b
 
 ---
 
+## 2b. Style adaptations for v2 (apply on top of each scene above)
+
+| Scene | Change for the 2D mythic style |
+|---|---|
+| 1–2 Classroom | Painterly warm-saffron classroom, bold line-art; the kids' laughter drawn with exaggerated graphic shapes; light shafts as flat golden beams. |
+| 3 She did not laugh | **Extreme macro of her eyes** filling the 9:16 frame (two eyes stacked with the bindi between, like the reference reel): kohl, eyelashes, a blue-black iris highlight; the laughing class reflected small in her pupils. |
+| 4 Cane | Swish drawn as an orange motion-smear arc with speed lines; chalk dust as gold particles. |
+| 5 Teacher's smile | Half her face in warm orange key, half in shadow; tiny sparkle on her glasses. |
+| 6 Magazine | Page and lamp painted in deep amber; ink letters faintly glowing gold. |
+| 7 Ink → smoke | Letters dissolve into **swirling gold particles and violet smoke**, forming a mandala that opens into the night. |
+| 8 Walking in the dark | Huge **pale moon disc** behind the pala tree; the woman's silhouette crosses it; deep violet sky and gold lamp dots. |
+| 9 Blood of men | Eye close-up with an amber flare; the men as dark ink silhouettes dissolving into **violet energy wisps**. |
+| 10 Laugh | She stands centred inside a **giant glowing golden ring / sun-mandala** on a saffron background, arms opening, petals and sparks spiralling. |
+| 11 Fear / hesitation | The reaching hand recoils from a burst of **blue-white lightning sparks**; lamps flare gold. |
+| 12 Yakshi | Symmetrical portrait, **golden mandala halo**, floating hair, glowing amber eyes, lotus petals of light drifting. |
+| 13 No one laughed | Classroom repainted cooler and quieter; a slow parallax drift along the faces. |
+| 14 End | Black → a tiny white figure under a big moon halo, gold dust fading; title **യക്ഷി** in glowing gold. |
+
+**Lighting & color rule:** classroom = saffron / warm cream; poem world = deep violet + black with gold and moon-white accents; yakshi moments = blazing gold + orange glow.
+
 ## 3. Edit and sound plan
 
 | Track | Content |
@@ -291,3 +317,9 @@ Generate each character **once** as a turnaround sheet (front / ¾ / profile / b
 ---
 
 *Prepared from the uploaded voice-over `VID-20261123-WA0006.mp4` (46.41 s). Style reference: the dark mythic-epic trailer you shared, used only for mood, lighting and camera language.*
+
+
+---
+
+### Appendix: v1 style block (dark 3D cinematic), kept for reference
+> *Stylized-realistic 3D animated feature film, original characters, Pixar-level character appeal with Unreal Engine 5 photoreal rendering, dark Indian mythic epic mood, volumetric fog, flickering oil-lamp amber firelight against cold moonlit teal-blue, floating embers and dust motes, high contrast deep blacks, gold metal glints, shallow anamorphic depth of field, subtle film grain, cinematic color grade, vertical 9:16 composition, no text, no watermark.*
