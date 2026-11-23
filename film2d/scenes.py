@@ -1,7 +1,7 @@
 """Painted 2D environments (soft illustrated Kerala village style)."""
 import math, random
 import cairo
-from draw import rgb, shade, mix, col, lin, rad, ellipse, rrect, smooth, limb, shadow, glow, ss
+from draw import rgb, shade, mix, col, lin, rad, ellipse, rrect, smooth, limb, shadow, glow, ss, ANIME
 
 # ------------------------------------------------------------------ sky
 SKIES = {
@@ -10,11 +10,21 @@ SKIES = {
     "dusk":  [(0, "#3a4677"), (0.45, "#a9708a"), (0.8, "#f0a066"), (1, "#f7c47e")],
     "night": [(0, "#08132a"), (0.6, "#14284a"), (1, "#24406a")],
     "grey":  [(0, "#6f7f8c"), (1, "#b9c2c4")],
+    "rain":  [(0, "#4d5d72"), (0.6, "#7f8fa0"), (1, "#a9b4bc")],
+}
+# anime skies: deeper, more saturated blues and glowing horizons
+ANIME_SKIES = {
+    "day":   [(0, "#1f6fd6"), (0.5, "#6ab8f2"), (0.85, "#c8ecff"), (1, "#f4fbff")],
+    "gold":  [(0, "#2a62c0"), (0.45, "#7fb4e6"), (0.75, "#f6d29a"), (1, "#ffb15e")],
+    "dusk":  [(0, "#26246e"), (0.4, "#7a4fa0"), (0.7, "#f07a7a"), (0.9, "#ffb36a"), (1, "#ffe0a0")],
+    "night": [(0, "#050b24"), (0.55, "#10265a"), (1, "#2a4f8f")],
+    "grey":  [(0, "#5f7286"), (1, "#c2ccd2")],
+    "rain":  [(0, "#3e4f6c"), (0.55, "#6f86a3"), (1, "#a6b8c8")],
 }
 
 
 def sky(cr, kind, y0=0, y1=1300, x0=-600, x1=1700, t=0.0, sun=None):
-    lin(cr, 0, y0, 0, y1, SKIES[kind] if isinstance(kind, str) else kind)
+    lin(cr, 0, y0, 0, y1, ((ANIME_SKIES if ANIME else SKIES)[kind]) if isinstance(kind, str) else kind)
     cr.rectangle(x0, y0 - 800, x1 - x0, y1 - y0 + 800); cr.fill()
     if sun:
         sx, sy, r, c = sun
@@ -29,11 +39,69 @@ def sky(cr, kind, y0=0, y1=1300, x0=-600, x1=1700, t=0.0, sun=None):
 
 
 def clouds(cr, y, t, c="#fff6e8", a=0.55, seed=3, x0=-600, x1=1700):
+    if ANIME:
+        return anime_clouds(cr, y, t, seed=seed, x0=x0, x1=x1, lit=c, a=min(1.0, a * 1.8))
     rnd = random.Random(seed)
     for k in range(6):
         cx = (rnd.uniform(x0, x1) + t * 6) % (x1 - x0) + x0; cy = y + rnd.uniform(-120, 120)
         for j in range(5):
             col(cr, (*rgb(c)[:3], a * 0.6)); ellipse(cr, cx + j * 45 - 90, cy - abs(j - 2) * -12, 70, 38); cr.fill()
+
+
+def anime_clouds(cr, y, t, seed=3, x0=-600, x1=1700, lit="#ffffff", shade_c=None, a=1.0, n=5, big=1.0):
+    """towering cel-shaded cumulus: lit tops, hard-edged lavender undersides"""
+    rnd = random.Random(seed)
+    lit_c = rgb(lit)
+    sh = rgb(shade_c) if shade_c else mix(lit_c, (0.55, 0.6, 0.85, 1), 0.45)
+    for k in range(n):
+        cx = (rnd.uniform(x0, x1) + t * 8) % (x1 - x0) + x0; cy = y + rnd.uniform(-160, 120)
+        sc = rnd.uniform(0.7, 1.3) * big
+        puffs = [(rnd.uniform(-170, 170) * sc, -abs(rnd.gauss(0, 1)) * 110 * sc, rnd.uniform(55, 115) * sc) for _ in range(9)]
+        puffs.sort(key=lambda q: q[1])
+        cr.push_group()
+        col(cr, (*sh[:3], 1))
+        for (px, py, r) in puffs:
+            cr.arc(cx + px, cy + py, r, 0, 6.3); cr.fill()
+        cr.rectangle(cx - 230 * sc, cy, 460 * sc, 40 * sc); cr.fill()
+        col(cr, (*lit_c[:3], 1))
+        for (px, py, r) in puffs:
+            cr.arc(cx + px - r * 0.12, cy + py - r * 0.22, r * 0.86, 0, 6.3); cr.fill()
+        col(cr, (1, 1, 1, 0.6))
+        for (px, py, r) in puffs[:3]:
+            cr.arc(cx + px - r * 0.3, cy + py - r * 0.42, r * 0.45, 0, 6.3); cr.fill()
+        cr.pop_group_to_source(); cr.paint_with_alpha(a)
+
+
+def god_rays(cr, x, y, n=6, length=2600, c="#fff2c8", a=0.16, t=0.0, spread=1.1, base=-math.pi / 2 - 0.9):
+    for k in range(n):
+        ang = base + spread * k / max(1, n - 1) + 0.03 * math.sin(t * 0.4 + k)
+        w = 0.05 + 0.03 * math.sin(k * 2.7)
+        lin(cr, x, y, x + math.cos(ang) * length, y + math.sin(ang) * length, [(0, (*rgb(c)[:3], a)), (1, (*rgb(c)[:3], 0))])
+        cr.move_to(x, y); cr.line_to(x + math.cos(ang - w) * length, y + math.sin(ang - w) * length)
+        cr.line_to(x + math.cos(ang + w) * length, y + math.sin(ang + w) * length); cr.close_path(); cr.fill()
+
+
+def rainbow(cr, x, y, r, a=0.35):
+    cols = ["#ff4a4a", "#ff9a3a", "#ffe24a", "#5ad66a", "#4aa8ff", "#6a5aff", "#b05aff"]
+    w = r * 0.022
+    for i, c in enumerate(cols):
+        col(cr, (*rgb(c)[:3], a)); cr.set_line_width(w)
+        cr.arc(x, y, r - i * w, math.pi, 2 * math.pi); cr.stroke()
+
+
+def puddles(cr, y0, y1, n, seed=1, sky="#8fa3b8", t=0.0, x0=-300, x1=1400):
+    """flat reflective puddles with rain ripples"""
+    rnd = random.Random(seed)
+    for _ in range(n):
+        px, py = rnd.uniform(x0, x1), rnd.uniform(y0, y1)
+        w = rnd.uniform(60, 170) * (0.5 + (py - y0) / max(1, y1 - y0))
+        lin(cr, 0, py - w * 0.18, 0, py + w * 0.18, [(0, shade(sky, 0.15)), (1, shade(sky, -0.1))])
+        ellipse(cr, px, py, w, w * 0.2); cr.fill()
+        col(cr, (1, 1, 1, 0.35)); cr.set_line_width(2)
+        for j in range(2):
+            ph = (t * 1.3 + rnd.random() + j * 0.5) % 1.0
+            ellipse(cr, px + rnd.uniform(-0.5, 0.5) * w, py, w * 0.25 * ph, w * 0.05 * ph)
+            col(cr, (1, 1, 1, 0.5 * (1 - ph))); cr.stroke()
 
 
 # ------------------------------------------------------------------ vegetation

@@ -1,8 +1,8 @@
 """Generate all Malayalam dialogue with Meta MMS-TTS (VITS) and shape each
 character's voice (pitch / formant / pace) so the five voices are distinct.
 
-usage: python3 audio/voices.py <mms-model-dir>
-writes build/voice/<id>.wav (48 kHz mono) and build/voice/meta.json
+usage: REEL_STORY=<story> python3 audio/voices.py <mms-model-dir>
+writes build/<story>/voice/<id>.wav (48 kHz mono) and build/<story>/voice/meta.json
 (duration + 30 fps mouth-openness envelope for lip-sync).
 """
 import json, os, re, subprocess, sys, tempfile
@@ -11,7 +11,9 @@ from scipy.signal import resample_poly, butter, sosfilt
 from transformers import VitsModel, AutoTokenizer
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, "build", "voice")
+sys.path.insert(0, ROOT)
+from reel import B, CFG, STORY
+OUT = os.path.join(B, "voice")
 FPS = 30
 SR = 48000
 
@@ -23,6 +25,8 @@ VOICES = {
     "adult":    dict(p=1.06, q=1.02, rate=0.86, noise=0.55, pause=1.2),
     "narrator": dict(p=0.84, q=0.94, rate=0.80, noise=0.50, pause=1.5),
 }
+for _k, _v in CFG.get("voices", {}).items():   # per-story extra / overridden voices
+    VOICES[_k] = dict(VOICES.get(_k, {}), **_v)
 
 
 def chunks(text):
@@ -59,7 +63,7 @@ def shape(wav, sr, v, tmp):
 
 def main(model_dir):
     os.makedirs(OUT, exist_ok=True)
-    story = json.load(open(os.path.join(ROOT, "story.json")))
+    story = CFG
     model = VitsModel.from_pretrained(model_dir); tok = AutoTokenizer.from_pretrained(model_dir)
     msr = model.config.sampling_rate
     meta = {}
@@ -81,7 +85,7 @@ def main(model_dir):
             y = np.concatenate(pieces[:-1])
             # light clean-up: high-pass, gentle de-ess shelf, normalise to -16 dBFS-ish RMS
             y = sosfilt(butter(2, 70, "hp", fs=SR, output="sos"), y)
-            if ln["speaker"] in ("child", "grandma"):
+            if VOICES[ln["speaker"]].get("soft", ln["speaker"] in ("child", "grandma")):
                 y = 0.85 * y + 0.15 * sosfilt(butter(2, 4500, "lp", fs=SR, output="sos"), y) - 0.15 * y * 0
             act = np.abs(y) > 1e-4
             rms = np.sqrt(np.mean(y[act] ** 2)) if act.any() else 1

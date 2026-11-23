@@ -1,0 +1,31 @@
+{
+  "title_ml": "ആ പഴയ വീട്",
+  "title_en": "THE OLD HOUSE · EPISODE 1",
+  "style": "veo",
+  "voices": {
+    "amma":  {"p": 1.6,  "q": 1.12, "rate": 0.86, "noise": 0.55, "pause": 1.1, "soft": true},
+    "achan": {"p": 0.8,  "q": 0.95, "rate": 0.84, "noise": 0.5,  "pause": 1.2},
+    "meera": {"p": 1.78, "q": 1.16, "rate": 0.92, "noise": 0.6,  "pause": 1.0, "soft": true},
+    "appu":  {"p": 1.4,  "q": 1.08, "rate": 0.98, "noise": 0.65, "pause": 0.9}
+  },
+  "eleven": {
+    "amma":  {"voice": "XrExE9yKIg1WjnnlVkGX", "stability": 0.6},
+    "achan": {"voice": "JBFqnCBsd6RMkjVDRZzb", "stability": 0.65},
+    "meera": {"voice": "EXAVITQu4vr4xnSDxMaL", "stability": 0.5},
+    "appu":  {"voice": "iP95p4xoKVk53GoZ742B", "pitch": 1.12, "stability": 0.5}
+  },
+  "lines": [
+    {"id": "l01", "speaker": "amma",  "text": "മീരേ, നീ നാളെ എവിടെയെങ്കിലും പോകുന്നുണ്ടോ?", "en": "Meera, are you going somewhere tomorrow?"},
+    {"id": "l02", "speaker": "meera", "text": "എന്താ അമ്മേ?", "en": "Why, Amma?"},
+    {"id": "l03", "speaker": "amma",  "text": "അല്ല, രാവിലെ മുതൽ നിന്റെ ഫോൺ വിളി കേൾക്കുന്നുണ്ടല്ലോ. എന്തെങ്കിലും പ്രശ്നമുണ്ടോന്ന് ചോദിച്ചതാ.", "en": "It's just... I've heard you on the phone since morning. I was asking if something is wrong."},
+    {"id": "l04", "speaker": "meera", "text": "പ്രശ്നമൊന്നുമില്ല അമ്മേ. ചില കാര്യങ്ങൾ ശരിയാക്കാനുണ്ട്.", "en": "Nothing's wrong, Amma. There are just a few things I need to sort out."},
+    {"id": "l05", "speaker": "achan", "text": "എന്ത് കാര്യമാണ്? വീട്ടിൽ പറയാൻ പറ്റാത്ത എന്തെങ്കിലും ഉണ്ടോ?", "en": "What things? Is there something you can't tell us at home?"},
+    {"id": "l06", "speaker": "meera", "text": "പറയാൻ പറ്റാത്തതല്ല അച്ഛാ... പറഞ്ഞിട്ട് മനസ്സിലാക്കാൻ ആരും തയ്യാറല്ലാത്തതാണ്.", "en": "It's not that I can't tell you, Achan... it's that no one is ready to understand."},
+    {"id": "l07", "speaker": "appu",  "text": "ചേച്ചി, നീ വീണ്ടും പോകുവാണോ?", "en": "Chechi, are you leaving again?"},
+    {"id": "l08", "speaker": "meera", "text": "എവിടേക്ക്?", "en": "Where?"},
+    {"id": "l09", "speaker": "appu",  "text": "പണ്ടത്തെപ്പോലെ... ഈ വീട്ടിൽ നിന്ന്.", "en": "Like before... from this house."},
+    {"id": "l10", "speaker": "achan", "text": "നാളെ രാവിലെ നമ്മൾ സംസാരിക്കണം. ഒരു കാര്യം നിന്നോട് പറയാനുണ്ട്.", "en": "We need to talk tomorrow morning. There's something I have to tell you."},
+    {"id": "l11", "speaker": "meera", "text": "എന്താ അച്ഛാ?", "en": "What is it, Achan?"},
+    {"id": "l12", "speaker": "achan", "text": "ഈ വീടിനെക്കുറിച്ചാണ്.", "en": "It's about this house."}
+  ]
+}

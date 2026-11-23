@@ -1,11 +1,13 @@
 """Synthesised score: soft nostalgic piano + gentle string pad, following the
 film's emotional arc (playful -> lullaby -> time passing -> quiet ending).
 writes build/music.wav (48 kHz stereo)"""
-import json, os
+import json, os, sys
 import numpy as np, soundfile as sf
 from scipy.signal import butter, sosfilt, fftconvolve
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
+from reel import B, CFG, STORY
 SR = 48000
 rng = np.random.default_rng(7)
 
@@ -90,7 +92,7 @@ def reverb(x, secs=2.6, wet=0.32):
     return (1 - wet) * x + wet * w * 0.6
 
 def main():
-    tl = json.load(open(os.path.join(ROOT, "build", "timeline.json")))
+    tl = json.load(open(os.path.join(B, "timeline.json")))
     total = sum(s["frames"] for s in tl) / 30
     st = {s["name"]: s["start"] / 30 for s in tl}
     N = int(SR * (total + 1)); L = np.zeros(N); R_ = np.zeros(N)
@@ -126,7 +128,7 @@ def main():
     fi = int(SR * 1.2); y[:fi] *= np.linspace(0, 1, fi)[:, None]
     fo = int(SR * 2.5); y[-fo:] *= np.linspace(1, 0, fo)[:, None]
     y /= np.max(np.abs(y)) + 1e-9
-    sf.write(os.path.join(ROOT, "build", "music.wav"), (y * 0.9).astype(np.float32), SR)
+    sf.write(os.path.join(B, "music.wav"), (y * 0.9).astype(np.float32), SR)
     print("music", total)
 
 if __name__ == "__main__":

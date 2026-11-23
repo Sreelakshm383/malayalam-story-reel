@@ -3,52 +3,28 @@ vignette, atmosphere particles (dust motes, sparkles, rain), scene dissolves,
 title cards and word-by-word highlighted Malayalam + English subtitles; muxes
 with the mixed audio to an Instagram-ready H.264 MP4.
 
-usage: python3 film/compose.py [out.mp4] [--from SEC] [--to SEC] [--workers N]
+usage: REEL_STORY=<story> [REEL_STYLE=anime] python3 film/compose.py [out.mp4] [--from SEC] [--to SEC] [--workers N]
 """
 import json, os, sys, math, re, subprocess, argparse
 from multiprocessing import Pool
 import numpy as np, soundfile as sf
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "film2d"))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from reel import B, CFG, ANIME, output_name
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-B = os.path.join(ROOT, "build")
 W, H, FPS = 1080, 1920, 30
 ML_FONT = "/usr/share/fonts/opentype/malayalam/Manjari-Bold.otf"
 EN_FONT = "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"
 EN_BOLD = "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf"
 
-EN = {
-    "s1_child": "Amma... let's go quickly! I want to see Grandpa and Grandma!",
-    "s1_gma": "My child is here! Come, my dear...",
-    "s1_gpa": "So, what's new? What shall we play this time?",
-    "s2_gma1": "Come, my boy... Grandma will feed you rice.",
-    "s2_child": "I love it when you feed me with your own hands, Grandma!",
-    "s2_gma2": "Does my little one want some more?",
-    "s3_child1": "Grandpa, can we go to the shop today too?",
-    "s3_gpa": "Of course we can... what would my child like?",
-    "s3_child2": "Nothing... I just want to go with you, Grandpa!",
-    "s4_child1": "Grandma... will you tell me a new story tonight?",
-    "s4_gma1": "Once upon a time, there lived a little prince...",
-    "s4_child2": "And then? And then?",
-    "s4_gma2": "I'll tell you the rest tomorrow. Now sleep, my child.",
-    "s5_adult": "How quickly everything changed...",
-    "s5_narr": "Back then, we never knew how precious every moment with them was.",
-    "s6_narr1": "Today, the house, the courtyard, the old easy chair are all still there...",
-    "s6_narr2": "But those old voices, those loving calls...",
-    "s6_narr3": "have become memories we can never hear again.",
-    "s6_final": "In childhood we had a heaven... it was Grandpa and Grandma's home.",
-}
-
+EN = CFG["en"]
 # grading per scene: (warmth, saturation, contrast, lift, vignette, bloom)
-GRADE = {0: (1.0, 1.02, 1.02, 0.015, 0.32, 0.12), 1: (1.0, 1.03, 1.02, 0.01, 0.3, 0.12), 2: (1.03, 1.02, 1.03, 0.015, 0.36, 0.18),
-         3: (1.0, 1.03, 1.02, 0.01, 0.3, 0.12), 4: (0.95, 1.0, 1.04, 0.0, 0.45, 0.14), 5: (1.05, 0.9, 1.0, 0.03, 0.4, 0.18),
-         6: (1.06, 0.88, 1.0, 0.035, 0.4, 0.2)}
-ATMOS = {"title": "pollen", "s1_run": "pollen", "s1_gma": "pollen", "s1_gpa": "pollen", "s1_hug": "pollen",
-         "s2_wide": "dust", "s2_child": "dust", "s2_gma": "dust", "s3_walk": "pollen", "s3_two": "pollen", "s3_shop": "pollen",
-         "s4_wide": "sparks", "s4_story": "sparks", "s4_eager": "sparks", "s4_sleep": "sparks", "s5_timelapse": "rain",
-         "s5_return": "pollen", "s5_face": "dust", "s5_photo": "dust", "s6_veranda": "pollen", "s6_toys": "dust",
-         "s6_photo": "dust", "s6_final": "fireflies"}
+GRADE = {int(k): tuple(v) for k, v in CFG["grade"].items()}
+ATMOS = CFG["atmos"]
+DISSOLVE = CFG.get("dissolve", {})
+SHOTS_MODULE = CFG.get("module", "shots2d")
 
 
 # ---------------------------------------------------------------- word timing
@@ -175,12 +151,11 @@ def subtitle_layer(cue, t_local):
 _title_cache = {}
 def title_layer(kind):
     if kind in _title_cache: return _title_cache[kind]
-    st = json.load(open(os.path.join(ROOT, "story.json")))
+    st = CFG
     img = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
     y0 = 250 if kind == "open" else 760
     fml = font(ML_FONT, 66 if kind == "open" else 74)
-    t1 = "മുത്തശ്ശന്റെയും"; t2 = "മുത്തശ്ശിയുടെയും വീട്"
-    for i, t in enumerate((t1, t2)):
+    for i, t in enumerate(st["title_lines"]):
         w = fml.getlength(t)
         sh = Image.new("RGBA", (W, H), (0, 0, 0, 0)); ds = ImageDraw.Draw(sh)
         ds.text(((W - w) / 2, y0 + i * fml.size * 1.3 + 3), t, font=fml, fill=(20, 10, 4, 200))
@@ -261,6 +236,8 @@ def vignette():
 def grade(img, scene, warmth_shift=0.0):
     warm, sat, con, lift, vig, bloom = GRADE[scene]
     warm += warmth_shift
+    if ANIME:   # anime look: cleaner, more vivid, glowier highlights
+        sat *= 1.12; con *= 1.03; bloom += 0.06; lift *= 0.6
     # bloom
     small = Image.fromarray((np.clip(img, 0, 1) * 255).astype(np.uint8)).resize((W // 6, H // 6), Image.BILINEAR)
     sa = np.asarray(small).astype(np.float32) / 255
@@ -297,13 +274,12 @@ def shot_at(F):
 
 
 def load(name, f):
-    import shots2d, draw
-    return draw.to_array(shots2d.frame(name, f)).copy()
+    import importlib, draw
+    return draw.to_array(importlib.import_module(SHOTS_MODULE).frame(name, f)).copy()
 
 
 _y = np.arange(H, dtype=np.float32)
 BAND = (0.5 * np.clip(1 - np.abs(_y - 1440) / 260, 0, 1) ** 0.8).reshape(H, 1)
-DISSOLVE = {"s2_wide": 15, "s3_walk": 15, "s4_wide": 18, "s5_timelapse": 36, "s5_return": 15, "s6_veranda": 18, "s5_face": 12}
 
 
 def render_frame(F):
@@ -356,7 +332,7 @@ def render_frame(F):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("out", nargs="?", default=os.path.join(ROOT, "output", "A_Home_Called_Grandma_and_Grandpa.mp4"))
+    ap.add_argument("out", nargs="?", default=output_name())
     ap.add_argument("--from", dest="fr", type=float, default=0); ap.add_argument("--to", type=float, default=None)
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--still", type=float, default=None)

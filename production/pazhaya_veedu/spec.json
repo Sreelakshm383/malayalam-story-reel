@@ -1,0 +1,216 @@
+{
+ "title": "ആ പഴയ വീട്",
+ "subtitle": "THE OLD HOUSE · EPISODE 1",
+ "audio": "build/pazhaya_veedu/episode_audio.wav",
+ "total": 71.002,
+ "shots": [
+  {
+   "name": "s01_house",
+   "start": 0.0,
+   "end": 4.5,
+   "label": "SHOT 1 - HOUSE"
+  },
+  {
+   "name": "s02_table",
+   "start": 4.5,
+   "end": 10.568,
+   "label": "SHOT 2 - TABLE"
+  },
+  {
+   "name": "s03_meera",
+   "start": 10.568,
+   "end": 12.93,
+   "label": "SHOT 3 - MEERA"
+  },
+  {
+   "name": "s04_amma",
+   "start": 12.93,
+   "end": 20.315,
+   "label": "SHOT 4 - AMMA"
+  },
+  {
+   "name": "s05_meera",
+   "start": 20.315,
+   "end": 26.151,
+   "label": "SHOT 5 - MEERA"
+  },
+  {
+   "name": "s06_achan",
+   "start": 26.151,
+   "end": 31.765,
+   "label": "SHOT 6 - ACHAN"
+  },
+  {
+   "name": "s07_meera",
+   "start": 31.765,
+   "end": 39.165,
+   "label": "SHOT 7 - MEERA"
+  },
+  {
+   "name": "s08_silence",
+   "start": 39.165,
+   "end": 41.965,
+   "label": "SHOT 8 - SILENCE"
+  },
+  {
+   "name": "s09_appu",
+   "start": 41.965,
+   "end": 44.873,
+   "label": "SHOT 9 - APPU"
+  },
+  {
+   "name": "s10_meera",
+   "start": 44.873,
+   "end": 46.603,
+   "label": "SHOT 10 - MEERA"
+  },
+  {
+   "name": "s11_appu",
+   "start": 46.603,
+   "end": 50.372,
+   "label": "SHOT 11 - APPU"
+  },
+  {
+   "name": "s12_meera",
+   "start": 50.372,
+   "end": 52.972,
+   "label": "SHOT 12 - MEERA"
+  },
+  {
+   "name": "s13_achan",
+   "start": 52.972,
+   "end": 59.07,
+   "label": "SHOT 13 - ACHAN"
+  },
+  {
+   "name": "s14_meera",
+   "start": 59.07,
+   "end": 61.236,
+   "label": "SHOT 14 - MEERA"
+  },
+  {
+   "name": "s15_achan",
+   "start": 61.236,
+   "end": 67.002,
+   "label": "SHOT 15 - ACHAN"
+  },
+  {
+   "name": "s16_end",
+   "start": 67.002,
+   "end": 71.002,
+   "label": "SHOT 16 - END"
+  }
+ ],
+ "subs": [
+  {
+   "id": "l01",
+   "speaker": "amma",
+   "start": 6.7,
+   "end": 10.068,
+   "ml": "മീരേ, നീ നാളെ എവിടെയെങ്കിലും പോകുന്നുണ്ടോ?",
+   "en": "Meera, are you going somewhere tomorrow?"
+  },
+  {
+   "id": "l02",
+   "speaker": "meera",
+   "start": 10.968,
+   "end": 12.43,
+   "ml": "എന്താ അമ്മേ?",
+   "en": "Why, Amma?"
+  },
+  {
+   "id": "l03",
+   "speaker": "amma",
+   "start": 13.23,
+   "end": 19.815,
+   "ml": "അല്ല, രാവിലെ മുതൽ നിന്റെ ഫോൺ വിളി കേൾക്കുന്നുണ്ടല്ലോ. എന്തെങ്കിലും പ്രശ്നമുണ്ടോന്ന് ചോദിച്ചതാ.",
+   "en": "It's just... I've heard you on the phone since morning. I was asking if something is wrong."
+  },
+  {
+   "id": "l04",
+   "speaker": "meera",
+   "start": 20.715,
+   "end": 25.551,
+   "ml": "പ്രശ്നമൊന്നുമില്ല അമ്മേ. ചില കാര്യങ്ങൾ ശരിയാക്കാനുണ്ട്.",
+   "en": "Nothing's wrong, Amma. There are just a few things I need to sort out."
+  },
+  {
+   "id": "l05",
+   "speaker": "achan",
+   "start": 26.951,
+   "end": 31.265,
+   "ml": "എന്ത് കാര്യമാണ്? വീട്ടിൽ പറയാൻ പറ്റാത്ത എന്തെങ്കിലും ഉണ്ടോ?",
+   "en": "What things? Is there something you can't tell us at home?"
+  },
+  {
+   "id": "l06",
+   "speaker": "meera",
+   "start": 32.265,
+   "end": 38.565,
+   "ml": "പറയാൻ പറ്റാത്തതല്ല അച്ഛാ... പറഞ്ഞിട്ട് മനസ്സിലാക്കാൻ ആരും തയ്യാറല്ലാത്തതാണ്.",
+   "en": "It's not that I can't tell you, Achan... it's that no one is ready to understand."
+  },
+  {
+   "id": "l07",
+   "speaker": "appu",
+   "start": 42.265,
+   "end": 44.373,
+   "ml": "ചേച്ചി, നീ വീണ്ടും പോകുവാണോ?",
+   "en": "Chechi, are you leaving again?"
+  },
+  {
+   "id": "l08",
+   "speaker": "meera",
+   "start": 45.173,
+   "end": 46.203,
+   "ml": "എവിടേക്ക്?",
+   "en": "Where?"
+  },
+  {
+   "id": "l09",
+   "speaker": "appu",
+   "start": 46.903,
+   "end": 49.772,
+   "ml": "പണ്ടത്തെപ്പോലെ... ഈ വീട്ടിൽ നിന്ന്.",
+   "en": "Like before... from this house."
+  },
+  {
+   "id": "l10",
+   "speaker": "achan",
+   "start": 53.472,
+   "end": 58.57,
+   "ml": "നാളെ രാവിലെ നമ്മൾ സംസാരിക്കണം. ഒരു കാര്യം നിന്നോട് പറയാനുണ്ട്.",
+   "en": "We need to talk tomorrow morning. There's something I have to tell you."
+  },
+  {
+   "id": "l11",
+   "speaker": "meera",
+   "start": 59.37,
+   "end": 60.736,
+   "ml": "എന്താ അച്ഛാ?",
+   "en": "What is it, Achan?"
+  },
+  {
+   "id": "l12",
+   "speaker": "achan",
+   "start": 61.836,
+   "end": 63.602,
+   "ml": "ഈ വീടിനെക്കുറിച്ചാണ്.",
+   "en": "It's about this house."
+  }
+ ],
+ "cards": [
+  {
+   "text": "ആ പഴയ വീട്",
+   "sub": "THE OLD HOUSE · EPISODE 1",
+   "start": 0.6,
+   "end": 4.2
+  },
+  {
+   "text": "തുടരും...",
+   "sub": "TO BE CONTINUED",
+   "start": 67.402,
+   "end": 71.00214583333332
+  }
+ ]
+}
